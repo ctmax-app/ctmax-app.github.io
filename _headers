@@ -1,0 +1,15 @@
+# Заголовки для Cloudflare Pages и Netlify. GitHub Pages этот файл
+# не читает: там работает только CSP из <meta> на каждой странице.
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; form-action 'self'; base-uri 'none'; object-src 'none'; manifest-src 'self'; require-trusted-types-for 'script'; upgrade-insecure-requests; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Cross-Origin-Opener-Policy: same-origin
+/account/*
+  Cache-Control: no-store
+  X-Robots-Tag: noindex
+/config.js
+  Cache-Control: no-cache
