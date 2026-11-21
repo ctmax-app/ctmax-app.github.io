@@ -1,0 +1,49 @@
+{
+ "models": {
+  "brain": {
+   "file": "brain_viewer.html",
+   "bytes": 6629078,
+   "sha256": "84ff721c5726de1eb44d5ac6fb97a4734a53f8bfac25c2557b21220cd2aa0442"
+  },
+  "digestive": {
+   "file": "digestive_viewer.html",
+   "bytes": 6378432,
+   "sha256": "13d1115704a10f118276d26dec17912e76bb8365b89c4610ed729e513f5b09d9"
+  },
+  "ear": {
+   "file": "ear_viewer.html",
+   "bytes": 3489228,
+   "sha256": "84f3ec35df40cf4405624003e8030d3350cecc8c44ad83c8eddcef44ee0424f0"
+  },
+  "eye": {
+   "file": "eye_viewer.html",
+   "bytes": 7739513,
+   "sha256": "58c5a84959c1cf1fbbd395ef2dbb083a9ee5479a21f862815d7edd9642838c1d"
+  },
+  "heart": {
+   "file": "heart_viewer.html",
+   "bytes": 6286984,
+   "sha256": "4161a0af8ceb45689a8a23acffff4f889b66c457410158220b92d321a585d413"
+  },
+  "kidney": {
+   "file": "kidney_viewer.html",
+   "bytes": 8568600,
+   "sha256": "281653c972ee278df971569fb296b9b5924139349de9dc1b374e5363528ea7ea"
+  },
+  "lungs": {
+   "file": "lungs_viewer.html",
+   "bytes": 6554875,
+   "sha256": "5933f39cad0635aa811e463dfa51a71bfd7e37ea1457a7ab4358e2a5a96efed4"
+  },
+  "skull": {
+   "file": "skull_viewer.html",
+   "bytes": 6386765,
+   "sha256": "cae36482634c3064b2bb8fac145d30ea969619f6c8fc8c89c0e8577d51907883"
+  },
+  "stomach": {
+   "file": "stomach_viewer.html",
+   "bytes": 6153791,
+   "sha256": "28d6a518363e8b7779880bafc2b1b348123bb308f058f8d833bbb0253140030b"
+  }
+ }
+}
