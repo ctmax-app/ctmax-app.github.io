@@ -2,48 +2,58 @@
  "models": {
   "brain": {
    "file": "brain_viewer.html",
-   "bytes": 6629078,
-   "sha256": "84ff721c5726de1eb44d5ac6fb97a4734a53f8bfac25c2557b21220cd2aa0442"
+   "bytes": 6631623,
+   "sha256": "3986a1258139a658ec5ee1ac65a20332fb84e678aa4b56b80e99dac2ceea3854"
+  },
+  "cell": {
+   "file": "cell_viewer.html",
+   "bytes": 7927702,
+   "sha256": "79aa369b0e4e3d12c960acbca76545645a11699db97510e85653eeeeb00b107c"
   },
   "digestive": {
    "file": "digestive_viewer.html",
-   "bytes": 6378432,
-   "sha256": "13d1115704a10f118276d26dec17912e76bb8365b89c4610ed729e513f5b09d9"
+   "bytes": 6380977,
+   "sha256": "bb9eb7c16b9edad901019a2328819dd692bc16e3d723f6d0ffaeaf00cf0f8620"
   },
-  "ear": {
-   "file": "ear_viewer.html",
-   "bytes": 3489228,
-   "sha256": "84f3ec35df40cf4405624003e8030d3350cecc8c44ad83c8eddcef44ee0424f0"
+  "dna": {
+   "file": "dna_viewer.html",
+   "bytes": 8350572,
+   "sha256": "0ba3cba4dcdc65029985fe196438500682b7c9f47b5875cb805332d5b687d6ef"
   },
   "eye": {
    "file": "eye_viewer.html",
-   "bytes": 7739513,
-   "sha256": "58c5a84959c1cf1fbbd395ef2dbb083a9ee5479a21f862815d7edd9642838c1d"
+   "bytes": 7739828,
+   "sha256": "5709af1f55d346ebd997e5494d4214a43580a94c55a7a41a322de626e9c032ca"
   },
   "heart": {
    "file": "heart_viewer.html",
-   "bytes": 6286984,
-   "sha256": "4161a0af8ceb45689a8a23acffff4f889b66c457410158220b92d321a585d413"
+   "bytes": 6289529,
+   "sha256": "29d66bbca703d7d11ce515fa7a67fb249155f51334ccb075c45ed201c398ce2b"
   },
   "kidney": {
    "file": "kidney_viewer.html",
-   "bytes": 8568600,
-   "sha256": "281653c972ee278df971569fb296b9b5924139349de9dc1b374e5363528ea7ea"
+   "bytes": 8569004,
+   "sha256": "6e8d320fc0f10b72a0503c6a280588eced28a6d9b273d55f0a07a9d92876556d"
   },
   "lungs": {
    "file": "lungs_viewer.html",
-   "bytes": 6554875,
-   "sha256": "5933f39cad0635aa811e463dfa51a71bfd7e37ea1457a7ab4358e2a5a96efed4"
+   "bytes": 6557420,
+   "sha256": "de0dcd256cc54fd9cd9c5a08219165f011898ee7a205e6f789690f3a22292317"
+  },
+  "neuron": {
+   "file": "neuron_viewer.html",
+   "bytes": 9948098,
+   "sha256": "642f9a28308bce1ffa773f193074a326ea3c39b603f06cab3c711be447c889ca"
   },
   "skull": {
    "file": "skull_viewer.html",
-   "bytes": 6386765,
-   "sha256": "cae36482634c3064b2bb8fac145d30ea969619f6c8fc8c89c0e8577d51907883"
+   "bytes": 6387670,
+   "sha256": "8cd9cbb83fffca224bf98cc7abe9e535cc98c38bf3a671a2410a127d28293011"
   },
   "stomach": {
    "file": "stomach_viewer.html",
-   "bytes": 6153791,
-   "sha256": "28d6a518363e8b7779880bafc2b1b348123bb308f058f8d833bbb0253140030b"
+   "bytes": 6154480,
+   "sha256": "bd8c7c1c1ac817dba0a91b95d8943f5f83ca44c8409d71413bcb972416d4cf8c"
   }
  }
 }
