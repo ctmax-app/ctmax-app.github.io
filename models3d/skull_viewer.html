@@ -211,10 +211,20 @@ new GLTFLoader().parse(CTMAX_GLB_BUFFER, '', (gltf) => {
   if (auto === 'explode') setTimeout(() => window.ctmax.explode(true), 1200);
   else if (auto === 'seg') {
     // Отладка сегментации: каждый регион своим плоским цветом по id.
-    const segColors = { cranium: 0xbdb8b0, face: 0xf2a541, mandible: 0x2f7df6 };
-    let i = 0;
+    const segColors = { cranium: 0xbdb8b0, face: 0xf2a541, mandible: 0x2f7df6,
+      esophagus: 0xe8843c, fundus: 0x9b59b6, body: 0x3498db, pylorus: 0x2ecc71,
+      capsule: 0xd93636, cortex: 0xf2993f, pyramids: 0x4d9df2, hilum: 0xf2e54d,
+      cochlea: 0xd93636, semicircular: 0xf2993f, vestibule: 0x4d9df2,
+      retina: 0xd93636, lens: 0xf2993f, iris: 0x4d9df2, cornea: 0xf2e54d,
+      vitreous: 0x6dd96b, sclera: 0x9b59b6, optic: 0x36c5d9,
+      pupil: 0x222222, choroid: 0xe75480, ciliary_body: 0x1abc9c, optic_nerve: 0x8e6dc9 };
     for (const r of regions) {
-      const c = segColors[r.id] ?? new THREE.Color().setHSL((i++ * 0.37) % 1, 0.8, 0.55).getHex();
+      let c = segColors[r.id];
+      if (c === undefined) {
+        let h = 0;
+        for (let i = 0; i < r.id.length; i++) h = (h * 31 + r.id.charCodeAt(i)) >>> 0;
+        c = new THREE.Color().setHSL((h % 360) / 360, 0.75, 0.55).getHex();
+      }
       r.mat.color.setHex(c);
       r.mat.map = null;
       r.mat.vertexColors = false;
@@ -589,10 +599,15 @@ function buildMarkers() {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-let downAt = 0;
-renderer.domElement.addEventListener('pointerdown', () => { downAt = performance.now(); });
+let downAt = 0, downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  downAt = performance.now(); downX = e.clientX; downY = e.clientY;
+});
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (performance.now() - downAt > 350 || explodeTarget > 0.5) return; // это был свайп/драг
+  // Тап — только если палец почти не сдвинулся: иначе это было вращение
+  // модели и карточка открываться не должна.
+  const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+  if (performance.now() - downAt > 350 || moved > 12 || explodeTarget > 0.5) return;
   pointer.x = (e.clientX / innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
