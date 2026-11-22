@@ -206,7 +206,8 @@ new GLTFLoader().parse(CTMAX_GLB_BUFFER, '', (gltf) => {
       capsule: 0xd93636, cortex: 0xf2993f, pyramids: 0x4d9df2, hilum: 0xf2e54d,
       cochlea: 0xd93636, semicircular: 0xf2993f, vestibule: 0x4d9df2,
       retina: 0xd93636, lens: 0xf2993f, iris: 0x4d9df2, cornea: 0xf2e54d,
-      vitreous: 0x6dd96b, sclera: 0x9b59b6, optic: 0x36c5d9 };
+      vitreous: 0x6dd96b, sclera: 0x9b59b6, optic: 0x36c5d9,
+      pupil: 0x222222, choroid: 0xe75480, ciliary_body: 0x1abc9c, optic_nerve: 0x8e6dc9 };
     for (const r of regions) {
       let c = segColors[r.id];
       if (c === undefined) {
@@ -588,10 +589,15 @@ function buildMarkers() {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-let downAt = 0;
-renderer.domElement.addEventListener('pointerdown', () => { downAt = performance.now(); });
+let downAt = 0, downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  downAt = performance.now(); downX = e.clientX; downY = e.clientY;
+});
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (performance.now() - downAt > 350 || explodeTarget > 0.5) return; // это был свайп/драг
+  // Тап — только если палец почти не сдвинулся: иначе это было вращение
+  // модели и карточка открываться не должна.
+  const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+  if (performance.now() - downAt > 350 || moved > 12 || explodeTarget > 0.5) return;
   pointer.x = (e.clientX / innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
