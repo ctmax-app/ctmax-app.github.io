@@ -182,6 +182,28 @@ new GLTFLoader().parse(CTMAX_GLB_BUFFER, '', (gltf) => {
   const auto = new URLSearchParams(location.search).get('autotest');
   if (auto) controls.autoRotate = false;
   if (auto === 'explode') setTimeout(() => window.ctmax.explode(true), 1200);
+  else if (auto === 'seg') {
+    // Отладка сегментации: каждый регион своим плоским цветом по id.
+    const segColors = { cranium: 0xbdb8b0, face: 0xf2a541, mandible: 0x2f7df6,
+      esophagus: 0xe8843c, fundus: 0x9b59b6, body: 0x3498db, pylorus: 0x2ecc71,
+      capsule: 0xd93636, cortex: 0xf2993f, pyramids: 0x4d9df2, hilum: 0xf2e54d,
+      cochlea: 0xd93636, semicircular: 0xf2993f, vestibule: 0x4d9df2,
+      retina: 0xd93636, lens: 0xf2993f, iris: 0x4d9df2, cornea: 0xf2e54d,
+      vitreous: 0x6dd96b, sclera: 0x9b59b6, optic: 0x36c5d9,
+      pupil: 0x222222, choroid: 0xe75480, ciliary_body: 0x1abc9c, optic_nerve: 0x8e6dc9 };
+    for (const r of regions) {
+      let c = segColors[r.id];
+      if (c === undefined) {
+        let h = 0;
+        for (let i = 0; i < r.id.length; i++) h = (h * 31 + r.id.charCodeAt(i)) >>> 0;
+        c = new THREE.Color().setHSL((h % 360) / 360, 0.75, 0.55).getHex();
+      }
+      r.mat.color.setHex(c);
+      r.mat.map = null;
+      r.mat.vertexColors = false;
+      r.mat.needsUpdate = true;
+    }
+  }
   else if (auto && auto.startsWith('select:')) {
     setTimeout(() => window.ctmax.select(auto.slice(7)), 1200);
   } else if (auto && auto.startsWith('tap:')) {
@@ -199,15 +221,32 @@ new GLTFLoader().parse(CTMAX_GLB_BUFFER, '', (gltf) => {
 // Подсветка: тонировка диффуза в синий (читается на светлых участках)
 // + умеренное эмиссионное свечение (видно на тёмном низе модели, где
 // текстура почти чёрная и тонировке не за что зацепиться).
+// Материал апгрейдится до MeshPhysicalMaterial: clearcoat даёт «влажный»
+// органический блик (как у Tripo-моделей атласа), sheen — мягкий ореол
+// на поворотных гранях. Возвращает новый материал (клон заменяется).
 function patchMaterial(mat, region) {
-  mat.transparent = true;
-  // glTF-дефолт без материала — metalness=1: цвета выгорают в белёсом
-  // зеркале env-карты. Делаем мягкий неметаллический «учебный» материал.
-  if (mat.metalness !== undefined) mat.metalness = 0.04;
-  if (mat.roughness !== undefined) mat.roughness = Math.min(mat.roughness ?? 1, 0.62);
-  // Приглушаем env-свет: светлые запечённые цвета (кость, склера, ДНК-остов)
-  // иначе пересвечиваются в чистый белый.
-  mat.envMapIntensity = 0.45;
+  const phys = new THREE.MeshPhysicalMaterial({
+    color: mat.color ? mat.color.clone() : new THREE.Color(0xffffff),
+    map: mat.map || null,
+    vertexColors: !!mat.vertexColors,
+    transparent: true,
+    // Разрезанные модели (глаз и др.): внутренние поверхности полуоболочек
+    // — backface'ы, без DoubleSide разрез был бы прозрачным насквозь.
+    side: THREE.DoubleSide,
+    // glTF-дефолт без материала — metalness=1: цвета выгорают в белёсом
+    // зеркале env-карты. Делаем мягкий неметаллический «учебный» материал.
+    metalness: 0.0,
+    roughness: Math.min(mat.roughness ?? 1, 0.40),
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.30,
+    sheen: 0.22,
+    sheenRoughness: 0.65,
+    sheenColor: new THREE.Color(1.0, 0.97, 0.94),
+    // Приглушаем env-свет: светлые запечённые цвета (кость, склера, ДНК-остов)
+    // иначе пересвечиваются в чистый белый.
+    envMapIntensity: 0.50,
+  });
+  mat = phys;
   mat.emissive = new THREE.Color(0.10, 0.35, 1.05);
   mat.emissiveIntensity = 0;
   mat.userData.baseEnv = mat.envMapIntensity;
@@ -220,6 +259,7 @@ function patchMaterial(mat, region) {
     region.shader = shader;
   };
   mat.needsUpdate = true;
+  return mat;
 }
 
 // Подразбиение каждого треугольника на 4 (средние точки рёбер).
@@ -244,7 +284,9 @@ function subdivideGeometry(geometry) {
   const positions = [], uvs = [], colors = [], indices = [];
   const byKey = new Map();
   const addVert = (x, y, z, u, v, col) => {
-    const key = Math.round(x * 1e4) + ',' + Math.round(y * 1e4) + ',' + Math.round(z * 1e4);
+    // Сетка 1e-6: микро-треугольники плотных сканов (череп) при сетке
+    // 1e-4 вырождались в ноль → NaN-нормали → чёрная «пыль» на модели.
+    const key = Math.round(x * 1e6) + ',' + Math.round(y * 1e6) + ',' + Math.round(z * 1e6);
     let i = byKey.get(key);
     if (i !== undefined) return i;
     i = positions.length / 3;
@@ -292,7 +334,7 @@ function buildTopology(geometry) {
   const byKey = new Map();
   const cpos = [];
   for (let i = 0; i < n; i++) {
-    const key = Math.round(pa[i * 3] * 1e4) + ',' + Math.round(pa[i * 3 + 1] * 1e4) + ',' + Math.round(pa[i * 3 + 2] * 1e4);
+    const key = Math.round(pa[i * 3] * 1e6) + ',' + Math.round(pa[i * 3 + 1] * 1e6) + ',' + Math.round(pa[i * 3 + 2] * 1e6);
     let c = byKey.get(key);
     if (c === undefined) { c = cpos.length / 3; byKey.set(key, c); cpos.push(pa[i * 3], pa[i * 3 + 1], pa[i * 3 + 2]); }
     canon[i] = c;
@@ -508,8 +550,7 @@ function buildRegions(geometry, srcMaterial) {
       id: seeds[k].id, mesh: null, geometry: g, mat: null, shader: null,
       dir, dist, centroid, hl: 0, hlTarget: 0, opacityTarget: 1,
     };
-    const mat = srcMaterial.clone();
-    patchMaterial(mat, region);
+    const mat = patchMaterial(srcMaterial.clone(), region);
     const mesh = new THREE.Mesh(g, mat);
     mesh.userData.regionId = region.id;
     region.mesh = mesh;
@@ -531,10 +572,15 @@ function buildMarkers() {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-let downAt = 0;
-renderer.domElement.addEventListener('pointerdown', () => { downAt = performance.now(); });
+let downAt = 0, downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  downAt = performance.now(); downX = e.clientX; downY = e.clientY;
+});
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (performance.now() - downAt > 350 || explodeTarget > 0.5) return; // это был свайп/драг
+  // Тап — только если палец почти не сдвинулся: иначе это было вращение
+  // модели и карточка открываться не должна.
+  const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+  if (performance.now() - downAt > 350 || moved > 12 || explodeTarget > 0.5) return;
   pointer.x = (e.clientX / innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
