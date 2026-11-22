@@ -1025,10 +1025,15 @@ function buildMarkers() {
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-let downAt = 0;
-renderer.domElement.addEventListener('pointerdown', () => { downAt = performance.now(); });
+let downAt = 0, downX = 0, downY = 0;
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  downAt = performance.now(); downX = e.clientX; downY = e.clientY;
+});
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (performance.now() - downAt > 350 || explodeTarget > 0.5) return; // это был свайп/драг
+  // Тап — только если палец почти не сдвинулся: иначе это было вращение
+  // модели и карточка открываться не должна.
+  const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+  if (performance.now() - downAt > 350 || moved > 12 || explodeTarget > 0.5) return;
   pointer.x = (e.clientX / innerWidth) * 2 - 1;
   pointer.y = -(e.clientY / innerHeight) * 2 + 1;
   raycaster.setFromCamera(pointer, camera);
